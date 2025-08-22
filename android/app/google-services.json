@@ -1,0 +1,410 @@
+{
+  "project_info": {
+    "project_number": "107823067393",
+    "project_id": "todotask-32782",
+    "storage_bucket": "todotask-32782.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:36e66072f118af299deb00",
+        "android_client_info": {
+          "package_name": "com.codefirst.hunt_sahre_live"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-63q7bn4903tejbeo99dbn2m4rolrudir.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codefirst.hunt_sahre_live",
+            "certificate_hash": "29565676ff0184d74e0f98f1c8e95b83e195a259"
+          }
+        },
+        {
+          "client_id": "107823067393-smcl1fpmn6qn7a58b1595vlmluibinf7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codefirst.hunt_sahre_live",
+            "certificate_hash": "457becd0e340a028990c96e595a6603aff140b36"
+          }
+        },
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:29931dc4173d63c39deb00",
+        "android_client_info": {
+          "package_name": "com.example.backndappfyp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:b41cf0e9452dec9b9deb00",
+        "android_client_info": {
+          "package_name": "com.example.cemetery_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-3e6o173baqoif118b1jn2tov9024etc3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cemetery_app",
+            "certificate_hash": "f722dfe76d856511e03a62077adc5f73bebce93e"
+          }
+        },
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:9a0e8857b0f648179deb00",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:77243b73c98fbd979deb00",
+        "android_client_info": {
+          "package_name": "com.example.fyp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:5c41d195034cf3b69deb00",
+        "android_client_info": {
+          "package_name": "com.example.huntliveapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-6kqnjljm2p081qes1bpoh1lj71s5i83v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.huntliveapp",
+            "certificate_hash": "29565676ff0184d74e0f98f1c8e95b83e195a259"
+          }
+        },
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:b63617e5a6a961779deb00",
+        "android_client_info": {
+          "package_name": "com.example.liveapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2c2j49lqk5iu1pfssu8ekqvkpti2d6rn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.liveapp",
+            "certificate_hash": "06f1d90822dfbe0a6c92d5ceaa7d9afc56f1c143"
+          }
+        },
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:e338db4f292845849deb00",
+        "android_client_info": {
+          "package_name": "com.example.localdatabe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:df6c0913c34058549deb00",
+        "android_client_info": {
+          "package_name": "com.example.new_tyamp_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107823067393:android:8daa92acb64d3f9b9deb00",
+        "android_client_info": {
+          "package_name": "com.example.todoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANeArX_ExTLHMsjlV0jM4uATqGmosZO8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107823067393-2u7cb6g6pgt3nhjkaofjmold4fit712u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107823067393-6mvkv85dth4ap87ng894ln8lgulmu745.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cemeteryApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
