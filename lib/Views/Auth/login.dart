@@ -38,7 +38,8 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Tyamo",
+          "Tyamoo",
+          
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         // backgroundColor: const Color(0xff000221),
