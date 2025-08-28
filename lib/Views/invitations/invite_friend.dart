@@ -1,9 +1,9 @@
-import 'dart:async';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_application_1/Views/invitations/accept_invite.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InviteFriend extends StatefulWidget {
   const InviteFriend({super.key});
@@ -13,10 +13,128 @@ class InviteFriend extends StatefulWidget {
 }
 
 class _InviteFriendState extends State<InviteFriend> {
+  final TextEditingController searchController = TextEditingController();
+  String searchText = "";
+  String? sessionUid;
+  String? sessionEmail;
+  String? sessionDisplayName;
+  String? sessionAvatarUrl;
+  final Set<String> _sentReceiverIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSession();
+  }
+
+  Future<void> _loadSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      sessionUid = prefs.getString('session_uid');
+      sessionEmail = prefs.getString('session_email');
+      sessionDisplayName = prefs.getString('session_displayName');
+      sessionAvatarUrl = prefs.getString('session_avatarUrl');
+    });
+  }
+
+  // ✅ function to send friend request
+  Future<void> sendFriendRequest(String receiverId) async {
+    // prefer session (email/password auth does not provide FirebaseAuth user here)
+    final prefs = await SharedPreferences.getInstance();
+    final senderId =
+        prefs.getString('session_uid') ??
+        FirebaseAuth.instance.currentUser?.uid;
+    final senderEmail =
+        prefs.getString('session_email') ??
+        FirebaseAuth.instance.currentUser?.email;
+    String senderName =
+        prefs.getString('session_displayName') ??
+        FirebaseAuth.instance.currentUser?.displayName ??
+        '';
+    String senderAvatar =
+        prefs.getString('session_avatarUrl') ??
+        FirebaseAuth.instance.currentUser?.photoURL ??
+        '';
+    if (senderId == null || senderId.isEmpty) return;
+
+    try {
+      // avoid duplicate pending requests
+      final existing = await FirebaseFirestore.instance
+          .collection("friendRequests")
+          .where('senderId', isEqualTo: senderId)
+          .where('receiverId', isEqualTo: receiverId)
+          .where('status', isEqualTo: 'pending')
+          .limit(1)
+          .get();
+      if (existing.docs.isNotEmpty) {
+        setState(() {
+          _sentReceiverIds.add(receiverId);
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Request already sent")));
+        return;
+      }
+
+      // If name/avatar are missing, fetch from user profile
+      if (senderName.isEmpty || senderAvatar.isEmpty) {
+        final profileSnap = await FirebaseFirestore.instance
+            .collection('ayaztempUser')
+            .doc(senderId)
+            .get();
+        final profile = profileSnap.data() ?? {};
+        if (senderName.isEmpty) {
+          senderName =
+              (profile['displayName'] ?? profile['username'] ?? 'No Name')
+                  .toString();
+        }
+        if (senderAvatar.isEmpty) {
+          senderAvatar = (profile['avatarUrl'] ?? '').toString();
+        }
+      }
+
+      await FirebaseFirestore.instance.collection("friendRequests").add({
+        "senderId": senderId,
+        "senderEmail": senderEmail,
+        "senderName": senderName,
+        "senderAvatar": senderAvatar,
+        "receiverId": receiverId,
+        "status": "pending",
+        "timestamp": FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Friend request sent!")));
+
+      setState(() {
+        _sentReceiverIds.add(receiverId);
+      });
+    } catch (e) {
+      debugPrint("Error sending request: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
+
+  // simple live check to reflect pending state per receiver
+  Stream<QuerySnapshot> _pendingRequestStream(String receiverId) {
+    final currentSenderId =
+        sessionUid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
+    return FirebaseFirestore.instance
+        .collection('friendRequests')
+        .where('senderId', isEqualTo: currentSenderId)
+        .where('receiverId', isEqualTo: receiverId)
+        .where('status', isEqualTo: 'pending')
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -32,12 +150,11 @@ class _InviteFriendState extends State<InviteFriend> {
           actions: [
             GestureDetector(
               onTap: () {
-                print("Navigating to AcceptInvite...");
                 Navigator.push(
                   context,
                   PageTransition(
                     type: PageTransitionType.fade,
-                    child: AcceptInvite(),
+                    child: const AcceptInvite(),
                   ),
                 );
               },
@@ -53,137 +170,160 @@ class _InviteFriendState extends State<InviteFriend> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 25,
-              color: const Color(0x00ff00cc),
-              child: Text(
-                " Find your friend ",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  color: Colors.black26,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                  fontSize: height * 0.02,
-                ),
-              ),
-            ),
-            SizedBox(height: height * .12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 3,
-                            blurRadius: 3,
-                          ),
-                        ],
+      body: Column(
+        children: [
+          // 🔹 Search Bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
                       ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 20,
-                          ),
-                          hintText: "Hi Faizan, type your exact username",
-                          hintStyle: TextStyle(
-                            color: Colors.grey,
-                            fontFamily: "Nunito",
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
-                          border: InputBorder.none,
-                        ),
+                      hintText: "Type name or email...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
                       ),
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
                     ),
+                    onChanged: (val) {
+                      setState(() {
+                        searchText = val.toLowerCase();
+                      });
+                    },
                   ),
-                  SizedBox(width: width * .02),
-                  Container(
-                    height: height * .15,
-                    width: height * .15,
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 3,
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.search, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: height * .14),
-            SizedBox(
-              height: height * .42,
-              width: width * .5,
-              child: Image.asset("images/invitechat.png", fit: BoxFit.contain),
-            ),
-            SizedBox(height: height * .03),
-            Text(
-              "Search for your friend on Tyamo,\nOr invite your friend on Tyamo",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: height * 0.03,
-              ),
-            ),
-            SizedBox(height: height * .02),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
                 ),
-              ),
-              onPressed: () {
-                Timer(const Duration(seconds: 2), () {
-                 // _btncontroller.success();
-                  Navigator.pushReplacement(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.fade,
-                      child: AcceptInvite(),
-                    ),
-                  );
-                });
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AcceptInvite()),
-                );
+                SizedBox(width: width * 0.02),
+                Container(
+                  height: height * .07,
+                  width: height * .07,
+                  decoration: const BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.search, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
 
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text("Invite sent!")));
+          // 🔹 User List
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection("ayaztempUser")
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("No users found"));
+                }
+
+                final currentUserId =
+                    sessionUid ?? FirebaseAuth.instance.currentUser?.uid;
+
+                // ✅ Exclude current user + Apply search filter
+                final users = snapshot.data!.docs.where((doc) {
+                  if (doc["uid"] == currentUserId) return false;
+
+                  final name =
+                      ((doc["displayName"] ?? doc['username'] ?? "").toString())
+                          .toLowerCase();
+                  final email = (doc["email"] ?? "").toString().toLowerCase();
+
+                  return searchText.isEmpty ||
+                      name.contains(searchText) ||
+                      email.contains(searchText);
+                }).toList();
+
+                if (users.isEmpty) {
+                  return const Center(child: Text("No matching users found"));
+                }
+
+                return ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    var user = users[index];
+
+                    final username = (user['username'] ?? '').toString().trim();
+                    final displayName = (user['displayName'] ?? '')
+                        .toString()
+                        .trim();
+                    final email = (user['email'] ?? '').toString().trim();
+
+                    final titleText = username.isNotEmpty
+                        ? username
+                        : (displayName.isNotEmpty ? displayName : 'No Name');
+                    final hasDisplay =
+                        displayName.isNotEmpty && displayName != username;
+                    final subtitleText = hasDisplay && email.isNotEmpty
+                        ? '$displayName  •  $email'
+                        : (email.isNotEmpty
+                              ? email
+                              : (hasDisplay ? displayName : 'No Email'));
+
+                    return ListTile(
+                      title: Text(
+                        titleText,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(subtitleText),
+                      leading: CircleAvatar(
+                        backgroundImage:
+                            (user["avatarUrl"] != null &&
+                                user["avatarUrl"].toString().isNotEmpty)
+                            ? NetworkImage(user["avatarUrl"])
+                            : const AssetImage("images/ayaz.jpeg")
+                                  as ImageProvider,
+                      ),
+                      trailing: StreamBuilder<QuerySnapshot>(
+                        stream: _pendingRequestStream(user['uid']),
+                        builder: (context, reqSnap) {
+                          final alreadySent =
+                              _sentReceiverIds.contains(user['uid']) ||
+                              (reqSnap.hasData &&
+                                  reqSnap.data!.docs.isNotEmpty);
+                          if (alreadySent) {
+                            return const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                            );
+                          }
+                          return ElevatedButton(
+                            onPressed: () => sendFriendRequest(user["uid"]),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text(
+                              "Add",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Text(
-                  " Invite a Friend ",
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-                ),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,75 +1,26 @@
+// import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Model/my_user.dart';
-//import 'package:flutter_application_1/Views/Auth/forgot_password.dart';
 import 'package:flutter_application_1/Views/Auth/login.dart';
-import 'package:flutter_application_1/Views/profilies/profile_setup.dart';
+import 'package:flutter_application_1/Views/navbar.dart';
+// import 'package:flutter_application_1/Views/profilies/profile_setup.dart';
 import 'package:flutter_application_1/show_custom_snackbar.dart';
 import 'package:page_transition/page_transition.dart';
-// import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart'; // for hashing password
 
 class UserController {
-  // loin
-  void signIn(String email, String password, BuildContext context) async {
-    if (email.isEmpty || password.isEmpty) {
-      showCustomSnackbar(
-        message: "Please fill all the fields",
-        context: context,
-      );
-      return;
-    }
-
-    try {
-      // 1. Sign in with Firebase Auth
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-
-      String uid = userCredential.user!.uid;
-
-      // 2. Fetch TempUser data from Firestore
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection("ayaztempUser")
-          .doc(uid)
-          .get();
-
-      if (userDoc.exists) {
-        // ✅ Email/Password matched + Data found
-        showCustomSnackbar(message: "Login Successful", context: context);
-
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            child: const ProfileSetup(), // replace with your dashboard/home
-          ),
-        );
-      } else {
-        // ⚠️ Authenticated but no TempUser record found
-        showCustomSnackbar(message: "User data not found", context: context);
-      }
-    } on FirebaseAuthException catch (e) {
-      String message = "";
-      if (e.code == 'user-not-found') {
-        message = "No user found for that email.";
-      } else if (e.code == 'wrong-password') {
-        message = "Incorrect password.";
-      } else {
-        message = e.message ?? "Login failed";
-      }
-      showCustomSnackbar(message: message, context: context);
-    } catch (e) {
-      showCustomSnackbar(message: e.toString(), context: context);
-    }
-  }
-
-  // siup
-  static Future<void> signUp(
-    String email,
-    String password,
-    String confirmPass,
-    BuildContext context,
-  ) async {
+  static Future<void> signUp({
+    required String imageUrl,
+    required String name,
+    required String email,
+    required String password,
+    required String confirmPass,
+    required BuildContext context,
+  }) async {
     if (email.isEmpty || password.isEmpty || confirmPass.isEmpty) {
       showCustomSnackbar(message: "Please fill all fields", context: context);
       return;
@@ -80,24 +31,38 @@ class UserController {
     }
 
     try {
-      // Create Firebase Auth user
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+      // Check if email already exists
+      var existingUser = await FirebaseFirestore.instance
+          .collection("ayaztempUser")
+          .where("email", isEqualTo: email)
+          .get();
 
-      String userId = userCredential.user!.uid;
+      if (existingUser.docs.isNotEmpty) {
+        showCustomSnackbar(
+          message: "User already exists with this email",
+          context: context,
+        );
+        return;
+      }
 
-      // Save extra data in Firestore
+      // Generate unique UID
+      String userId = const Uuid().v4();
+
+      // Create user model
       MyUser model = MyUser(
+        avatarUrl: imageUrl,
+        username: name,
         email: email,
-        password: password,
+        password: password, // ideally hash this
         uid: userId,
         isLoadingStartupData: true,
       );
 
+      // Save with UID as docId
       await FirebaseFirestore.instance
           .collection("ayaztempUser")
           .doc(userId)
-          .set(model.toMap());
+          .set(model.toMap(), SetOptions(merge: true));
 
       showCustomSnackbar(message: "Sign Up Successful", context: context);
 
@@ -106,10 +71,52 @@ class UserController {
         context,
         PageTransition(type: PageTransitionType.fade, child: const LoginPage()),
       );
-    } catch (e, stack) {
-      print("SignUp Error: $e");
-      print(stack);
-      // showCustomSnackbar(message: e.toString());
+    } catch (e) {
+      showCustomSnackbar(message: e.toString(), context: context);
+    }
+  }
+
+  void signIn(String email, String password, BuildContext context) async {
+    if (email.isEmpty || password.isEmpty) {
+      showCustomSnackbar(
+        message: "Please fill all the fields",
+        context: context,
+      );
+      return;
+    }
+
+    try {
+      var snapshot = await FirebaseFirestore.instance
+          .collection("ayaztempUser")
+          .where("email", isEqualTo: email)
+          .where("password", isEqualTo: password) // 🔐 hash later
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        // persist minimal session
+        final data = snapshot.docs.first.data();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('session_uid', data['uid'] ?? '');
+        await prefs.setString('session_email', data['email'] ?? '');
+        await prefs.setString(
+          'session_displayName',
+          (data['displayName'] ?? data['username'] ?? ''),
+        );
+        await prefs.setString('session_avatarUrl', data['avatarUrl'] ?? '');
+
+        showCustomSnackbar(message: "Login Successful", context: context);
+
+        Navigator.pushReplacement(
+          context,
+          PageTransition(type: PageTransitionType.fade, child: NavBarScreen()),
+        );
+      } else {
+        showCustomSnackbar(
+          message: "Invalid email or password",
+          context: context,
+        );
+      }
+    } catch (e) {
       showCustomSnackbar(message: e.toString(), context: context);
     }
   }

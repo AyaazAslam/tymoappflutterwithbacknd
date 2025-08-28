@@ -4,14 +4,14 @@ class CustomButtonWidget extends StatelessWidget {
   final String text;
 
   final Color color;
- 
+
   final IconData leadingIcon;
 
   const CustomButtonWidget({
     super.key,
     required this.text,
     required this.color,
-    
+
     required this.leadingIcon,
   });
 
@@ -25,7 +25,7 @@ class CustomButtonWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Container(
         height: height * 0.065,
-        width: width * 0.4,
+        width: width * 0.6,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(15),
@@ -33,7 +33,7 @@ class CustomButtonWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Center(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Row(
                 children: [
@@ -41,10 +41,7 @@ class CustomButtonWidget extends StatelessWidget {
                   const SizedBox(width: 2),
                   Text(
                     text,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(color: Colors.black, fontSize: 16),
                   ),
                 ],
               ),

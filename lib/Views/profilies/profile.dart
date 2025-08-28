@@ -29,9 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-          ),
+          icon: const Icon(Icons.arrow_back_ios),
           color: Colors.black,
           onPressed: () {
             Navigator.of(context).pop();
@@ -40,138 +38,148 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            SizedBox(
-              height: height * 0.1,
-            ),
+            SizedBox(height: 10),
             Text(
               "My Profile ",
               style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: height * 0.021,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: 1),
-            ),
-            Container(
-              height: height * .15,
-              width: width * .3,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.blueAccent),
-              child: const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 100,
+                color: Colors.black,
+                fontSize: height * 0.021,
+                fontWeight: FontWeight.normal,
+                letterSpacing: 1,
               ),
             ),
-            SizedBox(
-              height: height * 0.03,
+            Container(
+              height: height * .1,
+              width: width * .3,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blueAccent,
+              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 30),
             ),
+            SizedBox(height: height * 0.03),
             Text(
               "Jaydon Black ",
               style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: 1),
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+                letterSpacing: 1,
+              ),
             ),
             Text(
               "@jsb ",
               style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: 1),
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+                letterSpacing: 1,
+              ),
             ),
             const CustomButtonWidget(
-                text: "Edit Profile Details",
-                color: Colors.white,
-                leadingIcon: Icons.edit),
-            const SizedBox(
-              height: 5,
+              text: "Edit Profile Details",
+              color: Colors.white,
+              leadingIcon: Icons.edit,
             ),
+            const SizedBox(height: 5),
             if (!more) ...[
-              const ProfileDetailWidgets(
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: const ProfileDetailWidgets(
                   type: "Email",
                   val: "abc@gmail.com",
                   icon: Icons.email_sharp,
-                  color: Colors.white),
-              const ProfileDetailWidgets(
+                  color: Colors.white,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+
+                child: const ProfileDetailWidgets(
                   icon: Icons.flag_sharp,
                   type: "Country",
                   val: "Shangacer",
-                  color: Colors.white),
+                  color: Colors.white,
+                ),
+              ),
             ],
             if (more) ...[
               const ProfileDetailWidgets(
-                  type: "Email",
-                  val: "abc@gmail.com",
-                  icon: Icons.email_sharp,
-                  color: Colors.white),
+                type: "Email",
+                val: "abc@gmail.com",
+                icon: Icons.email_sharp,
+                color: Colors.white,
+              ),
               const ProfileDetailWidgets(
-                  icon: Icons.flag_sharp,
-                  type: "Country",
-                  val: "Shangacer",
-                  color: Colors.white),
+                icon: Icons.flag_sharp,
+                type: "Country",
+                val: "Shangacer",
+                color: Colors.white,
+              ),
               const ProfileDetailWidgets(
-                  icon: Icons.phone_callback_sharp,
-                  type: "Phone Number",
-                  val: "Not Currently Set",
-                  color: Colors.white),
+                icon: Icons.phone_callback_sharp,
+                type: "Phone Number",
+                val: "Not Currently Set",
+                color: Colors.white,
+              ),
               const ProfileDetailWidgets(
-                  icon: Icons.male_sharp,
-                  type: "Gender",
-                  val: "Male",
-                  color: Colors.white),
+                icon: Icons.male_sharp,
+                type: "Gender",
+                val: "Male",
+                color: Colors.white,
+              ),
               const ProfileDetailWidgets(
-                  icon: Icons.female,
-                  type: "Partner",
-                  val: "Robbie Williams",
-                  color: Colors.white),
+                icon: Icons.female,
+                type: "Partner",
+                val: "Robbie Williams",
+                color: Colors.white,
+              ),
               const ProfileDetailWidgets(
-                  icon: Icons.upload_file,
-                  type: "UID",
-                  val: "hjjhjjhjh jkkkkkkkk",
-                  color: Colors.white),
+                icon: Icons.upload_file,
+                type: "UID",
+                val: "hjjhjjhjh jkkkkkkkk",
+                color: Colors.white,
+              ),
               const ProfileDetailWidgets(
-                  icon: Icons.account_box,
-                  type: "Acounts Created",
-                  val: "24-4-25",
-                  color: Colors.white)
+                icon: Icons.account_box,
+                type: "Acounts Created",
+                val: "24-4-25",
+                color: Colors.white,
+              ),
             ],
             ElevatedButton(
-                style: ButtonStyle(
-                  side: WidgetStateProperty.all<BorderSide>(BorderSide(
-                    color: Colors.grey.shade200,
-                  )),
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                    Colors.grey.shade200,
-                  ),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                    ),
+              style: ButtonStyle(
+                side: WidgetStateProperty.all<BorderSide>(
+                  BorderSide(color: Colors.grey.shade200),
+                ),
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  Colors.grey.shade200,
+                ),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
                   ),
                 ),
-                onPressed: () {
-                  setState(() {
-                    more = !more;
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    more ? "- Show less" : "+ Show more",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w200,
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
+              ),
+              onPressed: () {
+                setState(() {
+                  more = !more;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  more ? "- Show less" : "+ Show more",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w200,
+                    fontSize: 14,
+                    color: Colors.black,
                   ),
-                )),
-            const SizedBox(
-              height: 10,
+                ),
+              ),
             ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -180,7 +188,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: width * .3,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                        colors: [Color(0xffff9966), Color(0xffff5e62)]),
+                      colors: [Color(0xffff9966), Color(0xffff5e62)],
+                    ),
                     color: Colors.blue,
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                   ),
@@ -190,17 +199,19 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         "Subscribed to",
                         style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                        ),
                       ),
                       Text(
                         "Premum",
                         style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15),
-                      )
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -219,22 +230,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         "Subscribed to",
                         style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                        ),
                       ),
                       Text(
                         "Premum",
                         style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15),
-                      )
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

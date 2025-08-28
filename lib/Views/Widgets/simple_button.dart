@@ -6,7 +6,7 @@ class SimpleButton extends StatelessWidget {
   final Color iconColor;
   final double borderRadius;
   final IconData leadingIcon;
-   
+
   const SimpleButton({
     super.key,
     required this.text,
@@ -22,9 +22,7 @@ class SimpleButton extends StatelessWidget {
     var width = MediaQuery.of(context).size.width;
     return Card(
       elevation: 10,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Container(
         height: height * 0.065,
         width: width * 0.4,
@@ -33,20 +31,19 @@ class SimpleButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            Icon(leadingIcon, color: iconColor),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Text(
-                text,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
+        child: FittedBox(
+          child: Row(
+            children: [
+              Icon(leadingIcon, color: iconColor),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  text,
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
                 ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );

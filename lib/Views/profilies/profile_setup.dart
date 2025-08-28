@@ -3,17 +3,18 @@ import 'dart:io';
 
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
+// import 'package:flutter_application_1/Model/my_user.dart';
 import 'package:flutter_application_1/Views/Widgets/Auth/auth_text_field.dart';
 import 'package:flutter_application_1/Views/invitations/invite_friend.dart';
-import 'package:page_transition/page_transition.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as im;
+import 'package:image_picker/image_picker.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileSetup extends StatefulWidget {
   const ProfileSetup({super.key});
@@ -31,78 +32,91 @@ class _ProfileSetupState extends State<ProfileSetup> {
   final userNameController = TextEditingController();
   bool isUploading = false;
   final ImagePicker img = ImagePicker();
-
-  // Pick image from gallery
-  Future<void> handlerChoosedfromGallery() async {
-    final pickedImage = await img.pickImage(
-      source: ImageSource.gallery,
-      maxHeight: 1080,
-      maxWidth: 1920,
-    );
-    if (pickedImage == null) return;
-
-    setState(() {
-      file = File(pickedImage.path);
-    });
-
-    // Upload to Firebase when image is selected
-    if (file != null) {
-      await uploadToStorage();
-    }
-  }
-
-  // Upload process
   Future<void> uploadToStorage() async {
+    if (nameController.text.trim().isEmpty ||
+        userNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+      return;
+    }
+
     setState(() {
       isUploading = true;
     });
-    await compressImage();
-    String mediaUrl = await uploadImage();
 
-    // Save to Firestore with current user UID
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      await FirebaseFirestore.instance.collection("TemoAsghar").doc(uid).set({
-        "name": nameController.text.trim(),
-        "username": userNameController.text.trim(),
-        "gender": isMale ? "male" : "female",
-        "profileImage": mediaUrl,
-      }, SetOptions(merge: true));
+    String? mediaUrl;
+
+    // 🔹 Upload profile picture if selected
+    if (file != null) {
+      await compressImage();
+      mediaUrl = await uploadImage();
     }
 
-    debugPrint("Image uploaded: $mediaUrl");
+    // 🔹 Always get the current logged-in user's uid (we saved email as uid during signUp)
+    // final currentUser = FirebaseAuth.instance.currentUser;
+    Uuid uuid = const Uuid();
+    String userId = uuid.v4();
+    // final uid = currentUser?.uid ?? currentUser?.email;
+
+
+    // 🔹 Update only the profile-related fields
+ await FirebaseFirestore.instance
+    .collection("ayaztempUser")
+    .doc(userId)
+    .set({
+      "username": userNameController.text.trim(),
+      "displayName": nameController.text.trim(),
+      "avatarUrl": mediaUrl ?? "",
+      "gender": isMale ? "male" : "female",
+      "isLoadingStartupData": false,
+    }, SetOptions(merge: true));
+
+    debugPrint("✅ User profile updated for $userId");
 
     setState(() {
       isUploading = false;
     });
   }
 
-  // Upload to Firebase Storage
-  Future<String> uploadImage() async {
-    UploadTask uploadTask = FirebaseStorage.instance
-        .ref()
-        .child("profilePictures/$postId.jpg")
-        .putFile(file!);
+  Future<void> handlerChoosedfromGallery() async {
+    final XFile? image = await img.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        file = File(image.path);
+      });
+    }
+  }
 
+  Future<void> compressImage() async {
+    final tempDir = await getTemporaryDirectory();
+    final path = tempDir.path;
+    im.Image? imageFile = im.decodeImage(file!.readAsBytesSync());
+    final compressedImageFile = File('$path/img_$postId.jpg')
+      ..writeAsBytesSync(im.encodeJpg(imageFile!, quality: 85));
+    setState(() {
+      file = compressedImageFile;
+    });
+  }
+
+  Future<String> uploadImage() async {
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child("profilePictures")
+        .child("post_$postId.jpg");
+    UploadTask uploadTask = ref.putFile(file!);
     TaskSnapshot storageSnap = await uploadTask;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
 
-  // Compress image
-  Future<void> compressImage() async {
-    final tempDir = await getTemporaryDirectory();
-    final path = tempDir.path;
-    im.Image? imageFile = im.decodeImage(file!.readAsBytesSync());
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    nameController.dispose();
+    userNameController.dispose();
 
-    if (imageFile == null) return;
-
-    final compressedImageFile = File("$path/image_$postId.jpg")
-      ..writeAsBytesSync(im.encodeJpg(imageFile, quality: 80));
-
-    setState(() {
-      file = compressedImageFile;
-    });
+    super.dispose();
   }
 
   @override
@@ -236,6 +250,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                       child: const InviteFriend(),
                     ),
                   );
+                  nameController.clear();
+                  userNameController.clear();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff00c1AA),
