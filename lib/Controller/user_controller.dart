@@ -96,13 +96,23 @@ class UserController {
         // persist minimal session
         final data = snapshot.docs.first.data();
         final prefs = await SharedPreferences.getInstance();
+        final String rawDisplay = (data['displayName'] ?? '').toString().trim();
+        final String rawUsername = (data['username'] ?? '').toString().trim();
+        final String rawEmail = (data['email'] ?? '').toString().trim();
+        String finalDisplay = rawDisplay;
+        if (finalDisplay.isEmpty) {
+          finalDisplay = rawUsername.isNotEmpty
+              ? rawUsername
+              : (rawEmail.contains('@') ? rawEmail.split('@').first : rawEmail);
+        }
+
         await prefs.setString('session_uid', data['uid'] ?? '');
-        await prefs.setString('session_email', data['email'] ?? '');
+        await prefs.setString('session_email', rawEmail);
+        await prefs.setString('session_displayName', finalDisplay);
         await prefs.setString(
-          'session_displayName',
-          (data['displayName'] ?? data['username'] ?? ''),
+          'session_avatarUrl',
+          (data['avatarUrl'] ?? '').toString(),
         );
-        await prefs.setString('session_avatarUrl', data['avatarUrl'] ?? '');
 
         showCustomSnackbar(message: "Login Successful", context: context);
 

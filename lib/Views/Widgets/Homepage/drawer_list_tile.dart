@@ -4,22 +4,27 @@ import 'package:google_fonts/google_fonts.dart';
 class DrawerListTile extends StatelessWidget {
   final IconData iconName;
   final String listTitle;
-  const DrawerListTile({super.key, required this.iconName, required this.listTitle});
+  final VoidCallback? onTap;
+  const DrawerListTile({
+    super.key,
+    required this.iconName,
+    required this.listTitle,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: ListTile(
         title: Container(
           alignment: Alignment.center,
           height: 50,
           child: Row(
             children: [
-               Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Icon(iconName,
-                    color: Color(0xff00D7CC)),
+                child: Icon(iconName, color: Color(0xff00D7CC)),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -31,7 +36,7 @@ class DrawerListTile extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

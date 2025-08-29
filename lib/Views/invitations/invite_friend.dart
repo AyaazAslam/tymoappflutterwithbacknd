@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Views/invitations/accept_invite.dart';
+import 'package:flutter_application_1/show_custom_snackbar.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,21 +59,51 @@ class _InviteFriendState extends State<InviteFriend> {
     if (senderId == null || senderId.isEmpty) return;
 
     try {
-      // avoid duplicate pending requests
-      final existing = await FirebaseFirestore.instance
-          .collection("friendRequests")
+      // Check any relation in either direction
+      final coll = FirebaseFirestore.instance.collection("friendRequests");
+      final myPending = await coll
           .where('senderId', isEqualTo: senderId)
           .where('receiverId', isEqualTo: receiverId)
-          .where('status', isEqualTo: 'pending')
           .limit(1)
           .get();
-      if (existing.docs.isNotEmpty) {
+      final theirPending = await coll
+          .where('senderId', isEqualTo: receiverId)
+          .where('receiverId', isEqualTo: senderId)
+          .limit(1)
+          .get();
+
+      bool anyAccepted = false;
+      bool anyPendingFromMe = false;
+      bool anyPendingToMe = false;
+
+      if (myPending.docs.isNotEmpty) {
+        final status = (myPending.docs.first.data()['status'] ?? '').toString();
+        if (status == 'accepted') anyAccepted = true;
+        if (status == 'pending') anyPendingFromMe = true;
+      }
+      if (theirPending.docs.isNotEmpty) {
+        final status = (theirPending.docs.first.data()['status'] ?? '')
+            .toString();
+        if (status == 'accepted') anyAccepted = true;
+        if (status == 'pending') anyPendingToMe = true;
+      }
+
+      if (anyAccepted) {
+        showCustomSnackbar(message: "Already friends", context: context);
+        return;
+      }
+      if (anyPendingFromMe) {
         setState(() {
           _sentReceiverIds.add(receiverId);
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Request already sent")));
+        showCustomSnackbar(message: "Request already sent", context: context);
+        return;
+      }
+      if (anyPendingToMe) {
+        showCustomSnackbar(
+          message: "They requested you. Tap Accept.",
+          context: context,
+        );
         return;
       }
 
@@ -103,31 +134,95 @@ class _InviteFriendState extends State<InviteFriend> {
         "timestamp": FieldValue.serverTimestamp(),
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Friend request sent!")));
+      showCustomSnackbar(message: "Friend request sent!", context: context);
 
       setState(() {
         _sentReceiverIds.add(receiverId);
       });
     } catch (e) {
       debugPrint("Error sending request: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      showCustomSnackbar(message: "Error: $e", context: context);
     }
   }
 
-  // simple live check to reflect pending state per receiver
-  Stream<QuerySnapshot> _pendingRequestStream(String receiverId) {
-    final currentSenderId =
-        sessionUid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
-    return FirebaseFirestore.instance
-        .collection('friendRequests')
-        .where('senderId', isEqualTo: currentSenderId)
-        .where('receiverId', isEqualTo: receiverId)
-        .where('status', isEqualTo: 'pending')
+  Future<void> acceptFriendRequest(String senderId) async {
+    try {
+      final myId = sessionUid ?? FirebaseAuth.instance.currentUser?.uid;
+      if (myId == null || myId.isEmpty) return;
+      final q = await FirebaseFirestore.instance
+          .collection('friendRequests')
+          .where('senderId', isEqualTo: senderId)
+          .where('receiverId', isEqualTo: myId)
+          .where('status', isEqualTo: 'pending')
+          .get();
+      for (final d in q.docs) {
+        await d.reference.update({'status': 'accepted'});
+      }
+      if (!mounted) return;
+      showCustomSnackbar(message: 'Request accepted', context: context);
+    } catch (e) {
+      if (!mounted) return;
+      showCustomSnackbar(message: 'Failed to accept: $e', context: context);
+    }
+  }
+
+  // merged relationship state stream
+  Stream<Map<String, bool>> _relationshipStateStream(String otherId) {
+    final myId = sessionUid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
+    final base = FirebaseFirestore.instance.collection('friendRequests');
+    final asSender = base
+        .where('senderId', isEqualTo: myId)
+        .where('receiverId', isEqualTo: otherId)
         .snapshots();
+    final asReceiver = base
+        .where('senderId', isEqualTo: otherId)
+        .where('receiverId', isEqualTo: myId)
+        .snapshots();
+
+    QuerySnapshot<Map<String, dynamic>>? sA;
+    QuerySnapshot<Map<String, dynamic>>? sB;
+
+    Map<String, bool> compute() {
+      bool accepted = false;
+      bool pendingFromMe = false;
+      bool pendingToMe = false;
+      for (final s in [sA, sB]) {
+        if (s == null) continue;
+        for (final d in s.docs) {
+          final data = d.data();
+          final status = (data['status'] ?? '').toString();
+          final sender = (data['senderId'] ?? '').toString();
+          if (status == 'accepted') accepted = true;
+          if (status == 'pending') {
+            if (sender == myId) {
+              pendingFromMe = true;
+            } else {
+              pendingToMe = true;
+            }
+          }
+        }
+      }
+      return {
+        'accepted': accepted,
+        'pendingFromMe': pendingFromMe,
+        'pendingToMe': pendingToMe,
+      };
+    }
+
+    return Stream<Map<String, bool>>.multi((controller) {
+      final sub1 = asSender.listen((snap) {
+        sA = snap;
+        controller.add(compute());
+      });
+      final sub2 = asReceiver.listen((snap) {
+        sB = snap;
+        controller.add(compute());
+      });
+      controller.onCancel = () {
+        sub1.cancel();
+        sub2.cancel();
+      };
+    });
   }
 
   @override
@@ -279,24 +374,70 @@ class _InviteFriendState extends State<InviteFriend> {
                       ),
                       subtitle: Text(subtitleText),
                       leading: CircleAvatar(
-                        backgroundImage:
+                        backgroundColor: Colors.blueAccent,
+                        child:
                             (user["avatarUrl"] != null &&
                                 user["avatarUrl"].toString().isNotEmpty)
-                            ? NetworkImage(user["avatarUrl"])
-                            : const AssetImage("images/ayaz.jpeg")
-                                  as ImageProvider,
+                            ? ClipOval(
+                                child: Image.network(
+                                  user["avatarUrl"],
+                                  fit: BoxFit.cover,
+                                  width: 40,
+                                  height: 40,
+                                  errorBuilder: (c, e, s) => const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.person, color: Colors.white),
                       ),
-                      trailing: StreamBuilder<QuerySnapshot>(
-                        stream: _pendingRequestStream(user['uid']),
-                        builder: (context, reqSnap) {
-                          final alreadySent =
-                              _sentReceiverIds.contains(user['uid']) ||
-                              (reqSnap.hasData &&
-                                  reqSnap.data!.docs.isNotEmpty);
-                          if (alreadySent) {
+                      trailing: StreamBuilder<Map<String, bool>>(
+                        stream: _relationshipStateStream(user['uid']),
+                        builder: (context, relSnap) {
+                          final state =
+                              relSnap.data ??
+                              const {
+                                'accepted': false,
+                                'pendingFromMe': false,
+                                'pendingToMe': false,
+                              };
+                          final hasAccepted = state['accepted'] == true;
+                          final hasPendingFromMe =
+                              state['pendingFromMe'] == true;
+                          final hasPendingToMe = state['pendingToMe'] == true;
+
+                          if (hasAccepted) {
                             return const Icon(
                               Icons.check_circle,
                               color: Colors.green,
+                            );
+                          }
+                          if (hasPendingFromMe) {
+                            return const Text(
+                              'Pending',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            );
+                          }
+                          if (hasPendingToMe) {
+                            return ElevatedButton(
+                              onPressed: () => acceptFriendRequest(user['uid']),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text(
+                                'Accept',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             );
                           }
                           return ElevatedButton(

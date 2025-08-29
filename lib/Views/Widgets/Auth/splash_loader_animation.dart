@@ -1,7 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Views/Auth/login.dart';
+import 'package:flutter_application_1/Views/navbar.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:flutter_application_1/Views/Auth/register.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashLoaderAnimation extends StatefulWidget {
   const SplashLoaderAnimation({super.key});
@@ -14,13 +17,26 @@ class _SplashLoaderAnimationState extends State<SplashLoaderAnimation> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
-      if (!mounted) return; // avoid navigation after widget dispose
+    _routeNext();
+  }
+
+  Future<void> _routeNext() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    final prefs = await SharedPreferences.getInstance();
+    final uid = prefs.getString('session_uid') ?? '';
+    if (!mounted) return;
+    if (uid.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const RegisterPage()),
+        MaterialPageRoute(builder: (_) => const NavBarScreen()),
       );
-    });
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    }
   }
 
   @override

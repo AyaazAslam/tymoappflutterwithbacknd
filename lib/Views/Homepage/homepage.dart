@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Views/Auth/login.dart';
 import 'package:flutter_application_1/Views/Widgets/Homepage/drawer_list_tile.dart';
 import 'package:flutter_application_1/Views/Widgets/custom_button.dart';
 import 'package:flutter_application_1/Views/Widgets/simple_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/components/drawer/gf_drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +17,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _homepagekey = GlobalKey();
+  String _displayName = "";
+  String _email = "";
+  String _avatarUrl = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSession();
+  }
+
+  Future<void> _loadSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _displayName = prefs.getString('session_displayName') ?? "";
+      _email = prefs.getString('session_email') ?? "";
+      _avatarUrl = prefs.getString('session_avatarUrl') ?? "";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +81,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: CircleAvatar(
                     radius: 30,
-                    backgroundImage: Image.asset("images/person.png").image,
+                    backgroundColor: Colors.blueAccent,
+                    child: _avatarUrl.isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
+                              _avatarUrl,
+                              fit: BoxFit.cover,
+                              width: 60,
+                              height: 60,
+                              errorBuilder: (c, e, s) =>
+                                  const Icon(Icons.person, color: Colors.white),
+                            ),
+                          )
+                        : const Icon(Icons.person, color: Colors.white),
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Jayan Black",
+                      _displayName.isNotEmpty
+                          ? _displayName
+                          : (_email.contains('@')
+                                ? _email.split('@').first
+                                : _email),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 18,
@@ -77,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      "JB@gmail.com",
+                      _email.isNotEmpty ? _email : "",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
@@ -148,6 +184,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     DrawerListTile(
                       iconName: FontAwesomeIcons.rightFromBracket,
                       listTitle: "Sign Out",
+                      onTap: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.remove('session_uid');
+                        await prefs.remove('session_email');
+                        await prefs.remove('session_displayName');
+                        await prefs.remove('session_avatarUrl');
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          (route) => false,
+                        );
+                      },
                     ),
                   ],
                 ),
