@@ -109,6 +109,8 @@ class _ProfilePageState extends State<ProfilePage> {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Colors.white,
+
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
@@ -120,13 +122,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
       ),
       body: SingleChildScrollView(
         child: Column(
